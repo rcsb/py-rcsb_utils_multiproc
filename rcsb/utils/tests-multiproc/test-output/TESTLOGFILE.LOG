@@ -1,5 +1,0 @@
-[ERROR] 2018-08-24 15:22:22,007 MainProcess-MultiProcLoggingTests.testLogStringPlusFileHandlers: context logging record 0
-[ERROR] 2018-08-24 15:22:22,007 MainProcess-MultiProcLoggingTests.testLogStringPlusFileHandlers: context logging record 1
-[ERROR] 2018-08-24 15:22:22,007 MainProcess-MultiProcLoggingTests.testLogStringPlusFileHandlers: context logging record 2
-[ERROR] 2018-08-24 15:22:22,008 MainProcess-MultiProcLoggingTests.testLogStringPlusFileHandlers: context logging record 3
-[ERROR] 2018-08-24 15:22:22,008 MainProcess-MultiProcLoggingTests.testLogStringPlusFileHandlers: context logging record 4
