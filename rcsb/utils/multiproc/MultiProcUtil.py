@@ -112,7 +112,7 @@ class MultiProcUtil(object):
             if chunkSize <= 0 use chunkSize = numProc
 
             Returns,   successFlag true|false
-                       successList (data from the inut list that succeed)
+                       failList (data from the inut list that was not successfully processed)
                        resultLists[numResults] --  numResults result lists
                        diagList --  unique list of diagnostics --
 
