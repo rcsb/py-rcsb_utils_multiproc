@@ -72,6 +72,7 @@ class MultiProcWorker(multiprocessing.Process):
 
 
 class MultiProcUtil(object):
+
     def __init__(self, verbose=True):
         self.__verbose = verbose
         self.__workFunc = None
@@ -191,7 +192,11 @@ class MultiProcUtil(object):
 
             np -= 1
         #
-        diagList = list(set(tL))
+        try:
+            diagList = list(set(tL))
+        except TypeError:
+            diagList = tL
+        #
         logger.debug("Input task length %d success length %d" % (len(dataList), len(successList)))
         try:
             for w in workers:
@@ -208,7 +213,35 @@ class MultiProcUtil(object):
         else:
             # logger.debug("data list %r " % dataList[:4])
             # logger.debug("successlist %r " % successList[:4])
-            failList = list(set(dataList) - set(successList))
+            # failList = list(set(dataList) - set(successList))
+            failList = self.__diffList(dataList, successList)
             logger.debug("Incomplete run  - input task length %d success length %d fail list %d" % (len(dataList), len(successList), len(failList)))
 
             return False, failList, retLists, diagList
+
+    def __isHashable(self, v):
+        """ Test if the input value is hashable
+        """
+        try:
+            hash(v)
+        except TypeError:
+            return False
+        return True
+
+    def __diffList(self, l1, l2):
+        """ List difference -  elements in l1 not in l2
+        """
+        try:
+            return list(set(l1) - set(l2))
+        except TypeError:
+            try:
+                idD1 = {id(t): ii for ii, t in enumerate(l1)}
+                idD2 = {id(t): ii for ii, t in enumerate(l2)}
+                idDifL = list(set(idD1.keys()) - set(idD2.keys()))
+                return [l1[idD1[ind]] for ind in idDifL]
+            except Exception as e:
+                logger.exception("Failing with %s" % str(e))
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
+
+        return []

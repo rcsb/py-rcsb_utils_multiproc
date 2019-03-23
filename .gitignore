@@ -1,0 +1,17 @@
+# IntelliJ IDEA editor files
+.idea
+*.iml
+
+# Environments
+/venv/
+
+# Unit tests / reports
+.tox/
+rcsb/db/tests/test-output/*
+
+# Distribution / packaging
+*.egg-info/
+.eggs/
+
+# Byte-compiled
+*.pyc
