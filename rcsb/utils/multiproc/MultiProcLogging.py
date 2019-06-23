@@ -36,8 +36,7 @@ except ImportError:
 
 
 class MultiProcLogging(object):
-
-    def __init__(self, logger=None, format=None, level=None):
+    def __init__(self, logger=None, fmt=None, level=None):
         """ Current logging instance or None - alternative format and level to be used within the bounded context.
 
             Redirect log requests to an multi-proc queue and a listener that
@@ -51,13 +50,13 @@ class MultiProcLogging(object):
         #
         self.__loggingQueue = multiprocessing.Queue(-1)
         self.__ql = None
-        self.__altFmt = logging.Formatter(format) if format else None
+        self.__altFmt = logging.Formatter(fmt) if fmt else None
         self.__altLevel = level if level else None
 
     def __setup(self):
         #
         #  Replace current handlers with queue
-        for i, hi in enumerate(list(self.logger.handlers)):
+        for hi in list(self.logger.handlers):
             # name = 'wrapped-{0}'.format(i)
             fmt = hi.formatter
             level = hi.level
@@ -86,9 +85,9 @@ class MultiProcLogging(object):
         #
         for wh in self.__handlerWrappedList:
             self.logger.removeHandler(wh)
-        for (ih, f, l) in self.__handlerInitialList:
-            ih.setFormatter(f)
-            ih.setLevel(l)
+        for (ih, ff, ll) in self.__handlerInitialList:
+            ih.setFormatter(ff)
+            ih.setLevel(ll)
             self.logger.addHandler(ih)
 
         # stop listening
@@ -119,12 +118,12 @@ class MultiProcLogQueueHandler(logging.Handler):
     between processes.
     """
 
-    def __init__(self, queue):
+    def __init__(self, aQueue):
         """
         Initialise an instance, using the passed queue.
         """
         logging.Handler.__init__(self)
-        self.queue = queue
+        self.queue = aQueue
         #
         # self.setLevel(level)
         # self.setFormatter(format)
@@ -172,7 +171,7 @@ class MultiProcLogQueueHandler(logging.Handler):
         """
         try:
             self.enqueue(self.prepare(record))
-        except (KeyboardInterrupt, SystemExit):
+        except (KeyboardInterrupt, SystemExit):  # pylint: disable=try-except-raise
             raise
         except Exception:
             self.handleError(record)
@@ -184,13 +183,14 @@ class MultiProcLogQueueListener(object):
     LogRecords being added to a queue, removes them and passes them to a
     list of handlers for processing.
     """
+
     _sentinel = None
 
-    def __init__(self, queue, handlerL):
+    def __init__(self, aQueue, handlerL):
         """
         Initialise an instance with the specified queue and handlers.
         """
-        self.queue = queue
+        self.queue = aQueue
         self.handlers = handlerL
         self._stop = threading.Event()
         self._thread = None
@@ -211,9 +211,9 @@ class MultiProcLogQueueListener(object):
         This starts up a background thread to monitor the queue for
         LogRecords to process.
         """
-        self._thread = t = threading.Thread(target=self._monitor)
-        t.setDaemon(True)
-        t.start()
+        self._thread = tT = threading.Thread(target=self._monitor)
+        tT.setDaemon(True)
+        tT.start()
 
     def prepare(self, record):
         """

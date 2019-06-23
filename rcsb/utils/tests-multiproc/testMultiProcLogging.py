@@ -26,28 +26,24 @@ from io import StringIO
 from rcsb.utils.multiproc.MultiProcLogging import MultiProcLogging
 from rcsb.utils.multiproc.MultiProcUtil import MultiProcUtil
 
-logging.basicConfig(level=logging.INFO, format=u'MAIN-%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s')
+logging.basicConfig(level=logging.INFO, format="MAIN-%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s")
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
 class MultiProcLoggingTests(unittest.TestCase):
-
     def setUp(self):
 
         self.__verbose = True
         self.__logRecordMax = 5
         self.__startTime = time.time()
         self.__testLogPath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "test-output", "TESTLOGFILE.LOG")
-        self.__mpFormat = u'[%(levelname)s] %(asctime)s %(processName)s-%(module)s.%(funcName)s: %(message)s'
-        logger.debug("Starting %s at %s" % (self.id(),
-                                            time.strftime("%Y %m %d %H:%M:%S", time.localtime())))
+        self.__mpFormat = "[%(levelname)s] %(asctime)s %(processName)s-%(module)s.%(funcName)s: %(message)s"
+        logger.debug("Starting %s at %s", self.id(), time.strftime("%Y %m %d %H:%M:%S", time.localtime()))
 
     def tearDown(self):
         endTime = time.time()
-        logger.debug("Completed %s at %s (%.4f seconds)" % (self.id(),
-                                                            time.strftime("%Y %m %d %H:%M:%S", time.localtime()),
-                                                            endTime - self.__startTime))
+        logger.debug("Completed %s at %s (%.4f seconds)", self.id(), time.strftime("%Y %m %d %H:%M:%S", time.localtime()), endTime - self.__startTime)
 
     def workerOne(self, dataList, procName, optionsD, workingDir):
         """
@@ -56,10 +52,12 @@ class MultiProcLoggingTests(unittest.TestCase):
             sucessList,resultList,diagList=workerFunc(runList=nextList,procName, optionsD, workingDir)
 
         """
+        _ = optionsD
+        _ = workingDir
         successList = []
-        for d in dataList:
-            logger.error(" %s value %s" % (procName, d))
-            successList.append(d)
+        for dD in dataList:
+            logger.error(" %s value %s", procName, dD)
+            successList.append(dD)
 
         return successList, [], []
 
@@ -71,14 +69,14 @@ class MultiProcLoggingTests(unittest.TestCase):
             #
             myLen = self.__logRecordMax
             dataList = [i for i in range(1, myLen)]
-            logger.debug("dataList %d:  %r" % (len(dataList), dataList))
+            logger.debug("dataList %d:  %r", len(dataList), dataList)
             #
-            with MultiProcLogging(logger=logger, format=self.__mpFormat, level=logging.DEBUG):
-                sL, _, _ = self.workerOne(dataList, "test", optionsD={}, workingDir='.')
-            logger.debug("dataList %d:  %r" % (len(dataList), dataList))
+            with MultiProcLogging(logger=logger, fmt=self.__mpFormat, level=logging.DEBUG):
+                sL, _, _ = self.workerOne(dataList, "test", optionsD={}, workingDir=".")
+            logger.debug("dataList %d:  %r", len(dataList), dataList)
             self.assertEqual(len(sL), len(dataList))
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     def testLogStringStream(self):
@@ -87,7 +85,7 @@ class MultiProcLoggingTests(unittest.TestCase):
         try:
             myLen = self.__logRecordMax
             dataList = [i for i in range(1, myLen)]
-            logger.debug("dataList %d:  %r" % (len(dataList), dataList))
+            logger.debug("dataList %d:  %r", len(dataList), dataList)
             #
             slogger = logging.getLogger()
             slogger.propagate = False
@@ -101,18 +99,18 @@ class MultiProcLoggingTests(unittest.TestCase):
             sh.setFormatter(fmt)
             slogger.addHandler(sh)
             #
-            with MultiProcLogging(logger=slogger, format=self.__mpFormat, level=logging.DEBUG) as wlogger:
+            with MultiProcLogging(logger=slogger, fmt=self.__mpFormat, level=logging.DEBUG) as wlogger:
                 for ii in range(myLen):
                     wlogger.error("context logging record %d" % ii)
             #
             stream.seek(0)
             logLines = stream.readlines()
-            logger.debug(">> dataList %d:  %r" % (len(logLines), logLines))
+            logger.debug(">> dataList %d:  %r", len(logLines), logLines)
             self.assertEqual(len(logLines), myLen)
             for line in logLines:
                 self.assertIn("context logging record", line)
         except Exception as e:
-            logger.exception("context logging record %s" % str(e))
+            logger.exception("context logging record %s", str(e))
             self.fail()
 
     def testLogFileHandler(self):
@@ -123,18 +121,18 @@ class MultiProcLoggingTests(unittest.TestCase):
             #
             myLen = self.__logRecordMax
             dataList = [i for i in range(1, myLen)]
-            logger.debug("dataList %d:  %r" % (len(dataList), dataList))
+            logger.debug("dataList %d:  %r", len(dataList), dataList)
             #
             flogger = logging.getLogger()
             for handler in flogger.handlers:
                 flogger.removeHandler(handler)
-            fh = logging.FileHandler(self.__testLogPath, mode='w', encoding='utf-8')
+            fh = logging.FileHandler(self.__testLogPath, mode="w", encoding="utf-8")
             fh.setLevel(logging.DEBUG)
             fmt = logging.Formatter("FILE-%(processName)s: %(message)s")
             fh.setFormatter(fmt)
             flogger.addHandler(fh)
             #
-            with MultiProcLogging(logger=flogger, format=self.__mpFormat, level=logging.DEBUG) as wlogger:
+            with MultiProcLogging(logger=flogger, fmt=self.__mpFormat, level=logging.DEBUG) as wlogger:
                 for ii in range(myLen):
                     wlogger.error("context logging record %d" % ii)
 
@@ -142,14 +140,14 @@ class MultiProcLoggingTests(unittest.TestCase):
             flogger.removeHandler(fh)
             #
             logLines = []
-            with open(self.__testLogPath, 'r') as ifh:
+            with open(self.__testLogPath, "r") as ifh:
                 for line in ifh:
                     logLines.append(line)
             self.assertEqual(len(logLines), myLen)
             for line in logLines:
                 self.assertIn("context logging record", line)
         except Exception as e:
-            logger.exception("context logging record %s" % str(e))
+            logger.exception("context logging record %s", str(e))
             self.fail()
 
     def testLogStringPlusFileHandlers(self):
@@ -160,13 +158,13 @@ class MultiProcLoggingTests(unittest.TestCase):
             #
             myLen = self.__logRecordMax
             dataList = [i for i in range(1, myLen)]
-            logger.debug("dataList %d:  %r" % (len(dataList), dataList))
+            logger.debug("dataList %d:  %r", len(dataList), dataList)
             #
             mlogger = logging.getLogger()
             for handler in mlogger.handlers:
                 mlogger.removeHandler(handler)
             #
-            fh = logging.FileHandler(self.__testLogPath, mode='w', encoding='utf-8')
+            fh = logging.FileHandler(self.__testLogPath, mode="w", encoding="utf-8")
             fh.setLevel(logging.DEBUG)
             fmt = logging.Formatter("FILE-%(processName)s: %(message)s")
             fh.setFormatter(fmt)
@@ -179,7 +177,7 @@ class MultiProcLoggingTests(unittest.TestCase):
             sh.setFormatter(fmt)
             mlogger.addHandler(sh)
             #
-            with MultiProcLogging(logger=mlogger, format=self.__mpFormat, level=logging.DEBUG) as wlogger:
+            with MultiProcLogging(logger=mlogger, fmt=self.__mpFormat, level=logging.DEBUG) as wlogger:
                 for ii in range(myLen):
                     wlogger.error("context logging record %d" % ii)
 
@@ -188,7 +186,7 @@ class MultiProcLoggingTests(unittest.TestCase):
             mlogger.removeHandler(fh)
             #
             logLines = []
-            with open(self.__testLogPath, 'r') as ifh:
+            with open(self.__testLogPath, "r") as ifh:
                 for line in ifh:
                     logLines.append(line)
             self.assertEqual(len(logLines), myLen)
@@ -197,13 +195,13 @@ class MultiProcLoggingTests(unittest.TestCase):
             #
             stream.seek(0)
             logLines = stream.readlines()
-            logger.debug(">> dataList %d:  %r" % (len(logLines), logLines))
+            logger.debug(">> dataList %d:  %r", len(logLines), logLines)
             self.assertEqual(len(logLines), myLen)
             for line in logLines:
                 self.assertIn("context logging record", line)
             #
         except Exception as e:
-            logger.exception("context logging record %s" % str(e))
+            logger.exception("context logging record %s", str(e))
             self.fail()
 
     #
@@ -215,7 +213,7 @@ class MultiProcLoggingTests(unittest.TestCase):
             #
             myLen = self.__logRecordMax
             dataList = [i for i in range(1, myLen + 1)]
-            logger.debug("dataList %d:  %r" % (len(dataList), dataList))
+            logger.debug("dataList %d:  %r", len(dataList), dataList)
             #
             slogger = logging.getLogger()
             slogger.propagate = False
@@ -231,14 +229,14 @@ class MultiProcLoggingTests(unittest.TestCase):
             #
             logger.debug("Starting string stream logging(root)")
             #
-            with MultiProcLogging(logger=slogger, format=self.__mpFormat, level=logging.DEBUG):
+            with MultiProcLogging(logger=slogger, fmt=self.__mpFormat, level=logging.DEBUG):
                 numProc = 2
                 chunkSize = 0
                 optD = {}
                 mpu = MultiProcUtil(verbose=True)
                 mpu.setOptions(optionsD=optD)
                 mpu.set(workerObj=self, workerMethod="workerOne")
-                ok, failList, retLists, diagList = mpu.runMulti(dataList=dataList, numProc=numProc, numResults=1, chunkSize=chunkSize)
+                ok, failList, _, _ = mpu.runMulti(dataList=dataList, numProc=numProc, numResults=1, chunkSize=chunkSize)
                 self.assertEqual(len(failList), 0)
                 self.assertTrue(ok)
                 #
@@ -249,12 +247,12 @@ class MultiProcLoggingTests(unittest.TestCase):
             #
             stream.seek(0)
             logLines = stream.readlines()
-            logger.debug(">> dataList %d:  %r" % (len(logLines), logLines))
+            logger.debug(">> dataList %d:  %r", len(logLines), logLines)
             self.assertGreaterEqual(len(logLines), myLen)
             # for line in logLines:
             #    self.assertIn("context logging record", line)
         except Exception as e:
-            logger.exception("context logging record %s" % str(e))
+            logger.exception("context logging record %s", str(e))
             self.fail()
 
     def testLogFileHandlerMultiProc(self):
@@ -265,27 +263,27 @@ class MultiProcLoggingTests(unittest.TestCase):
             #
             myLen = self.__logRecordMax
             dataList = [i for i in range(1, myLen + 1)]
-            logger.debug("dataList %d:  %r" % (len(dataList), dataList))
+            logger.debug("dataList %d:  %r", len(dataList), dataList)
             #
             # For multiprocessing start with the root logger ...
             flogger = logging.getLogger()
             for handler in flogger.handlers:
                 flogger.removeHandler(handler)
-            fh = logging.FileHandler(self.__testLogPath, mode='w', encoding='utf-8')
+            fh = logging.FileHandler(self.__testLogPath, mode="w", encoding="utf-8")
             fh.setLevel(logging.DEBUG)
             fmt = logging.Formatter("FILE-%(processName)s: %(message)s")
             fh.setFormatter(fmt)
             flogger.addHandler(fh)
             #
             #
-            with MultiProcLogging(logger=flogger, format=self.__mpFormat, level=logging.DEBUG):
+            with MultiProcLogging(logger=flogger, fmt=self.__mpFormat, level=logging.DEBUG):
                 numProc = 2
                 chunkSize = 0
                 optD = {}
                 mpu = MultiProcUtil(verbose=True)
                 mpu.setOptions(optionsD=optD)
                 mpu.set(workerObj=self, workerMethod="workerOne")
-                ok, failList, retLists, diagList = mpu.runMulti(dataList=dataList, numProc=numProc, numResults=1, chunkSize=chunkSize)
+                ok, failList, _, _ = mpu.runMulti(dataList=dataList, numProc=numProc, numResults=1, chunkSize=chunkSize)
                 self.assertEqual(len(failList), 0)
                 self.assertTrue(ok)
                 #
@@ -294,14 +292,14 @@ class MultiProcLoggingTests(unittest.TestCase):
 
             #
             logLines = []
-            with open(self.__testLogPath, 'r') as ifh:
+            with open(self.__testLogPath, "r") as ifh:
                 for line in ifh:
                     logLines.append(line)
             self.assertGreaterEqual(len(logLines), myLen)
             # for line in logLines:
             #    self.assertIn("context logging record", line)
         except Exception as e:
-            logger.exception("context logging record %s" % str(e))
+            logger.exception("context logging record %s", str(e))
             self.fail()
 
 
@@ -322,12 +320,10 @@ def suiteMultiProcLogging():
     return suiteSelect
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     #
-    if True:
-        mySuite = suiteContextManagerLogging()
-        unittest.TextTestRunner(verbosity=2).run(mySuite)
+    mySuite = suiteContextManagerLogging()
+    unittest.TextTestRunner(verbosity=2).run(mySuite)
 
-    if True:
-        mySuite = suiteMultiProcLogging()
-        unittest.TextTestRunner(verbosity=2).run(mySuite)
+    mySuite = suiteMultiProcLogging()
+    unittest.TextTestRunner(verbosity=2).run(mySuite)

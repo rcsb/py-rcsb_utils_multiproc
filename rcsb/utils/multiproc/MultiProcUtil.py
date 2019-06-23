@@ -38,7 +38,7 @@ class MultiProcWorker(multiprocessing.Process):
          sucessList,resultList,diagList=workerFunc(runList=nextList,procName, optionsD, workingDir)
     """
 
-    def __init__(self, taskQueue, successQueue, resultQueueList, diagQueue, workerFunc, verbose=False, optionsD=None, workingDir='.'):
+    def __init__(self, taskQueue, successQueue, resultQueueList, diagQueue, workerFunc, verbose=False, optionsD=None, workingDir="."):
         multiprocessing.Process.__init__(self)
         self.__taskQueue = taskQueue
         self.__successQueue = successQueue
@@ -59,11 +59,11 @@ class MultiProcWorker(multiprocessing.Process):
             nextList = self.__taskQueue.get()
             if nextList is None:
                 # end of queue condition
-                logger.debug("%s completed task list" % processName)
+                logger.debug("%s completed task list", processName)
                 break
             #
             rTup = self.__workerFunc(dataList=nextList, procName=processName, optionsD=self.__optionsD, workingDir=self.__workingDir)
-            logger.debug("%s task list length %d rTup length %d" % (processName, len(nextList), len(rTup)))
+            logger.debug("%s task list length %d rTup length %d", processName, len(nextList), len(rTup))
             self.__successQueue.put(rTup[0])
             for ii, rq in enumerate(self.__resultQueueList):
                 rq.put(rTup[ii + 1])
@@ -72,12 +72,11 @@ class MultiProcWorker(multiprocessing.Process):
 
 
 class MultiProcUtil(object):
-
     def __init__(self, verbose=True):
         self.__verbose = verbose
-        self.__workFunc = None
+        self.__workerFunc = None
         self.__optionsD = {}
-        self.__workingDir = '.'
+        self.__workingDir = "."
         self.__loggingMP = True
         self.__sentinel = None
 
@@ -133,8 +132,8 @@ class MultiProcUtil(object):
         #
         subLists = [dataList[i::numLists] for i in range(numLists)]
         #
-        if subLists and len(subLists) > 0:
-            logger.debug("Running with numProc %d subtask count %d subtask length ~ %d" % (numProc, len(subLists), len(subLists[0])))
+        if subLists is not None and subLists:
+            logger.debug("Running with numProc %d subtask count %d subtask length ~ %d", numProc, len(subLists), len(subLists[0]))
         #
         taskQueue = multiprocessing.Queue()
         successQueue = multiprocessing.Queue()
@@ -150,23 +149,17 @@ class MultiProcUtil(object):
         #  Create list of worker processes
         #
         workers = [
-            MultiProcWorker(
-                taskQueue,
-                successQueue,
-                rqList,
-                diagQueue,
-                self.__workerFunc,
-                verbose=self.__verbose,
-                optionsD=self.__optionsD,
-                workingDir=self.__workingDir) for i in range(numProc)]
-        for w in workers:
-            w.start()
+            MultiProcWorker(taskQueue, successQueue, rqList, diagQueue, self.__workerFunc, verbose=self.__verbose, optionsD=self.__optionsD, workingDir=self.__workingDir)
+            for i in range(numProc)
+        ]
+        for wT in workers:
+            wT.start()
 
         for subList in subLists:
-            if len(subList) > 0:
+            if subList:
                 taskQueue.put(subList)
 
-        for i in range(numProc):
+        for _ in range(numProc):
             taskQueue.put(None)
 
         # np = numProc
@@ -175,20 +168,20 @@ class MultiProcUtil(object):
         diagList = []
         tL = []
         while np:
-            r = successQueue.get()
-            if r is not None and len(r) > 0:
-                successList.extend(r)
+            rV = successQueue.get()
+            if rV is not None and rV:
+                successList.extend(rV)
 
-            d = diagQueue.get()
-            if d is not None and len(d) > 0:
-                for tt in d:
-                    if len(str(tt).strip()) > 0:
+            dV = diagQueue.get()
+            if dV is not None and dV:
+                for tt in dV:
+                    if str(tt).strip():
                         tL.append(tt)
 
             for ii, rq in enumerate(rqList):
-                r = rq.get()
-                if r is not None and len(r) > 0:
-                    retLists[ii].extend(r)
+                rV = rq.get()
+                if rV is not None and rV:
+                    retLists[ii].extend(rV)
 
             np -= 1
         #
@@ -197,25 +190,25 @@ class MultiProcUtil(object):
         except TypeError:
             diagList = tL
         #
-        logger.debug("Input task length %d success length %d" % (len(dataList), len(successList)))
+        logger.debug("Input task length %d success length %d", len(dataList), len(successList))
         try:
-            for w in workers:
-                w.terminate()
-                w.join(1)
+            for wT in workers:
+                wT.terminate()
+                wT.join(1)
         except Exception as e:
             logger.error("termination/reaping failing\n")
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
 
         #
         if len(dataList) == len(successList):
-            logger.debug("Complete run  - input task length %d success length %d" % (len(dataList), len(successList)))
+            logger.debug("Complete run  - input task length %d success length %d", len(dataList), len(successList))
             return True, [], retLists, diagList
         else:
             # logger.debug("data list %r " % dataList[:4])
             # logger.debug("successlist %r " % successList[:4])
             # failList = list(set(dataList) - set(successList))
             failList = self.__diffList(dataList, successList)
-            logger.debug("Incomplete run  - input task length %d success length %d fail list %d" % (len(dataList), len(successList), len(failList)))
+            logger.debug("Incomplete run  - input task length %d success length %d fail list %d", len(dataList), len(successList), len(failList))
 
             return False, failList, retLists, diagList
 
@@ -240,8 +233,8 @@ class MultiProcUtil(object):
                 idDifL = list(set(idD1.keys()) - set(idD2.keys()))
                 return [l1[idD1[ind]] for ind in idDifL]
             except Exception as e:
-                logger.exception("Failing with %s" % str(e))
+                logger.exception("Failing with %s", str(e))
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
 
         return []

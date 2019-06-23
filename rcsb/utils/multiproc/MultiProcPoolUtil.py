@@ -27,12 +27,11 @@ logger = logging.getLogger(__name__)
 
 
 class MultiProcPoolUtil(object):
-
     def __init__(self, verbose=True):
         self.__verbose = verbose
-        self.__workFunc = None
+        self.__workerFunc = None
         self.__optionsD = {}
-        self.__workingDir = '.'
+        self.__workingDir = "."
         self.__loggingMP = True
         self.__sentinel = None
 
@@ -80,7 +79,7 @@ class MultiProcPoolUtil(object):
         successList = []
         diagList = []
         try:
-            procName = 'temp'
+            procName = "temp"
             if numProc < 1:
                 numProc = multiprocessing.cpu_count() * 2
 
@@ -95,21 +94,19 @@ class MultiProcPoolUtil(object):
             #
             subLists = [dataList[i::numLists] for i in range(numLists)]
             #
-            if subLists and len(subLists) > 0:
-                logger.info("Running with numProc %d subtask count %d subtask length ~ %d" % (
-                    numProc, len(subLists), len(subLists[0])))
+            if subLists is not None and subLists:
+                logger.info("Running with numProc %d subtask count %d subtask length ~ %d", numProc, len(subLists), len(subLists[0]))
             #
             #
-            pFunc = partial(self.__workerFunc, procName=procName, optionsD=self.__optionsD,
-                            workingDir=self.__workingDir)
+            pFunc = partial(self.__workerFunc, procName=procName, optionsD=self.__optionsD, workingDir=self.__workingDir)
             #
             # start numProc worker processes
             with contextlib.closing(multiprocessing.Pool(processes=numProc)) as pool:
-                retTupList = pool.map(pFunc, subLists)
-                logger.info("Map completed result length %d %r" % (len(retTupList), type(retTupList)))
+                retTupList = pool.map(pFunc, subLists)  # pylint: disable=no-member
+                logger.info("Map completed result length %d %r", len(retTupList), type(retTupList))
 
             #
-            logger.debug("rTup is %r" % retTupList)
+            logger.debug("rTup is %r", retTupList)
             #
             retLists = [[] for ii in range(numResults)]
             for retTup in retTupList:
@@ -119,22 +116,19 @@ class MultiProcPoolUtil(object):
                 diagList.extend(retTup[-1])
             #
 
-            logger.info("Input task length %d success length %d retLists len %d diagList len %d " % (
-                len(dataList), len(successList), len(retLists), len(diagList)))
+            logger.info("Input task length %d success length %d retLists len %d diagList len %d ", len(dataList), len(successList), len(retLists), len(diagList))
             #
 
             if len(dataList) == len(successList):
-                logger.info(
-                    "Complete run  - input task length %d success length %d" % (len(dataList), len(successList)))
+                logger.info("Complete run  - input task length %d success length %d", len(dataList), len(successList))
                 return True, [], retLists, diagList
             else:
-                # logger.debug("data list %r " % dataList[:4])
-                # logger.debug("successlist %r " % successList[:4])
+                # logger.debug("data list %r", dataList[:4])
+                # logger.debug("successlist %r", successList[:4])
                 failList = list(set(dataList) - set(successList))
-                logger.info("Incomplete run  - input task length %d success length %d fail list %d" % (
-                    len(dataList), len(successList), len(failList)))
+                logger.info("Incomplete run  - input task length %d success length %d fail list %d", len(dataList), len(successList), len(failList))
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
         return False, failList, retLists, diagList
 
     def runMultiAsync(self, dataList=None, numProc=0, numResults=1, chunkSize=1):
@@ -157,7 +151,7 @@ class MultiProcPoolUtil(object):
         diagList = []
         failList = []
         try:
-            procName = 'temp'
+            procName = "temp"
             if numProc < 1:
                 numProc = multiprocessing.cpu_count() * 2
 
@@ -165,16 +159,15 @@ class MultiProcPoolUtil(object):
             numProc = min(numProc, lenData)
 
             #
-            pFunc = partial(self.__workerFunc, procName=procName, optionsD=self.__optionsD,
-                            workingDir=self.__workingDir)
+            pFunc = partial(self.__workerFunc, procName=procName, optionsD=self.__optionsD, workingDir=self.__workingDir)
             #
             # start numProc worker processes
             with contextlib.closing(multiprocessing.Pool(processes=numProc)) as pool:
-                aSyncMapResult = pool.map_async(pFunc, dataList, chunksize=chunkSize)
+                aSyncMapResult = pool.map_async(pFunc, dataList, chunksize=chunkSize)  # pylint: disable=no-member
                 retTupList = aSyncMapResult.get()
 
             #
-            logger.debug("rTup is %r" % retTupList)
+            logger.debug("rTup is %r", retTupList)
             #
             retLists = [[] for ii in range(numResults)]
             for retTup in retTupList:
@@ -184,23 +177,20 @@ class MultiProcPoolUtil(object):
                 diagList.extend(retTup[-1])
             #
 
-            logger.info("Input task length %d success length %d retLists len %d diagList len %d " % (
-                len(dataList), len(successList), len(retLists), len(diagList)))
+            logger.info("Input task length %d success length %d retLists len %d diagList len %d ", len(dataList), len(successList), len(retLists), len(diagList))
 
             #
             if len(dataList) == len(successList):
-                logger.info(
-                    "Complete run  - input task length %d success length %d" % (len(dataList), len(successList)))
+                logger.info("Complete run  - input task length %d success length %d", len(dataList), len(successList))
                 return True, [], retLists, diagList
             else:
                 # logger.debug("data list %r " % dataList[:4])
                 # logger.debug("successlist %r " % successList[:4])
                 # failList = list(set(dataList) - set(successList))
                 failList = self.__diffList(dataList, successList)
-                logger.info("Incomplete run  - input task length %d success length %d fail list %d" % (
-                    len(dataList), len(successList), len(failList)))
+                logger.info("Incomplete run  - input task length %d success length %d fail list %d", len(dataList), len(successList), len(failList))
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
         return False, failList, retLists, diagList
 
     def __diffList(self, l1, l2):
@@ -215,8 +205,8 @@ class MultiProcPoolUtil(object):
                 idDifL = list(set(idD1.keys()) - set(idD2.keys()))
                 return [l1[idD1[ind]] for ind in idDifL]
             except Exception as e:
-                logger.exception("Failing with %s" % str(e))
+                logger.exception("Failing with %s", str(e))
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
 
         return []
