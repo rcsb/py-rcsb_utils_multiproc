@@ -13,12 +13,13 @@
 __docformat__ = "restructuredtext en"
 __author__ = "John Westbrook"
 __email__ = "jwest@rcsb.rutgers.edu"
-__license__ = "Creative Commons Attribution 3.0 Unported"
+__license__ = "Apache 2.0"
 
 import logging
 import random
 import re
 import string
+import sys
 import unittest
 
 from rcsb.utils.multiproc.MultiProcPoolUtil import MultiProcPoolUtil
@@ -75,6 +76,7 @@ class MultiProcPoolUtilTests(unittest.TestCase):
         """
         """
 
+    @unittest.skipIf(sys.version_info[0] < 3, "not supported in this python version")
     def testMultiProcStringSyncLegacy(self):
         """
         """
@@ -134,12 +136,6 @@ class MultiProcPoolUtilTests(unittest.TestCase):
 def suiteMultiProcPoolSync():
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(MultiProcPoolUtilTests("testMultiProcStringSyncLegacy"))
-    return suiteSelect
-
-
-def suiteMultiProcPoolAsync():
-    suiteSelect = unittest.TestSuite()
-    suiteSelect.addTest(MultiProcPoolUtilTests("testMultiProcStringAsync"))
     return suiteSelect
 
 
