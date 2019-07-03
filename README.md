@@ -1,6 +1,8 @@
-## RCSB Python Multiprocessing Utility Classes
+# RCSB Python Multiprocessing Utility Classes
 
-### Introduction
+[![Build Status](https://dev.azure.com/jdwestbrook/jdwestbrook/_apis/build/status/rcsb.py-rcsb_utils_multiproc?branchName=master)](https://dev.azure.com/jdwestbrook/jdwestbrook/_build/latest?definitionId=6&branchName=master)
+
+## Introduction
 
 This module contains a collection of utility classes for multiprocessing operations.
 
@@ -29,6 +31,9 @@ tox
 Installation is via the program [pip](https://pypi.python.org/pypi/pip).
 
 ```bash
+pip install rcsb.utils.multiproc
+
+or in the local repository:
+
 pip install .
 ```
-
