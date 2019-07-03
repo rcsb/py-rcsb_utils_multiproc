@@ -11,6 +11,14 @@
 """
 Test cases for multiprocess and multiprocessing logger context manager --
 
+testLogFileHandler (testMultiProcLogging.MultiProcLoggingTests)
+Test case -  context manager - to string stream and custom file stream ... ok
+
+testLogFileHandlerMultiProc (testMultiProcLogging.MultiProcLoggingTests)
+Test case -  context manager - to string stream and custom file stream ... ok
+
+testLogStream (testMultiProcLogging.MultiProcLoggingTests)
+Test case -  context manager - with default root logger ... ok
 """
 __docformat__ = "restructuredtext en"
 __author__ = "John Westbrook"
@@ -19,6 +27,7 @@ __license__ = "Apache 2.0"
 
 import logging
 import os
+import sys
 import time
 import unittest
 from io import StringIO
@@ -79,6 +88,7 @@ class MultiProcLoggingTests(unittest.TestCase):
             logger.exception("Failing with %s", str(e))
             self.fail()
 
+    @unittest.skipIf(sys.version_info[0] < 3, "not supported in this python version")
     def testLogStringStream(self):
         """Test case -   context manager - to custom string stream
         """
@@ -150,6 +160,7 @@ class MultiProcLoggingTests(unittest.TestCase):
             logger.exception("context logging record %s", str(e))
             self.fail()
 
+    @unittest.skipIf(sys.version_info[0] < 3, "not supported in this python version")
     def testLogStringPlusFileHandlers(self):
         """Test case -  context manager - to custom file stream
         """
@@ -205,6 +216,7 @@ class MultiProcLoggingTests(unittest.TestCase):
             self.fail()
 
     #
+    @unittest.skipIf(sys.version_info[0] < 3, "not supported in this python version")
     def testLogStringStreamMultiProc(self):
         """Test case -   context manager - to custom string stream
         """
