@@ -24,8 +24,10 @@ jobs:
       matrix:
         Python37:
           python.version: '3.7'
+          tox.env: 'py37'
         Python27:
           python.version: '2.7'
+          tox.env: 'py27'
       maxParallel: 2
     steps:
       - bash: |
@@ -57,7 +59,7 @@ jobs:
       - script: pip install -r requirements.txt
         displayName: 'Install dependencies'
       #
-      - script: tox -v
+      - script: python -m tox -v -e $(tox.env)
         displayName: 'Run Tox'
       #
       #  Build artifacts
@@ -82,8 +84,10 @@ jobs:
       matrix:
         Python37:
           python.version: '3.7'
+          tox.env: 'py37,pylint-linux,flake8-linux,coverage-linux'
         Python27:
           python.version: '2.7'
+          tox.env: 'py27'
       maxParallel: 2
     steps:
       - task: UsePythonVersion@0
@@ -108,7 +112,7 @@ jobs:
       - script: pip install -r requirements.txt
         displayName: 'Install dependencies'
       #
-      - script: tox -v
+      - script: python -m tox -v -e $(tox.env)
         displayName: 'Run Tox'
       #
       #  Create build artifacts
@@ -146,8 +150,8 @@ jobs:
         inputs:
           versionSpec: '$(python.version)'
           addToPath: true
-      - checkout: self
-        submodules: true
+      #- checkout: self
+      #  submodules: true
       #
       - download: current
         artifact: "SW_$(Agent.OS)_$(python.version)"
@@ -188,8 +192,8 @@ jobs:
         inputs:
           versionSpec: '$(python.version)'
           addToPath: true
-      - checkout: self
-        submodules: true
+      #- checkout: self
+      #  submodules: true
       #
       - download: current
         artifact: "SW_$(Agent.OS)_$(python.version)"
