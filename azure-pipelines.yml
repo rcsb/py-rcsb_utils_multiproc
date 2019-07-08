@@ -19,7 +19,7 @@ schedules:
 jobs:
   - job: 'test_macos'
     pool:
-      vmImage: 'macos-latest'
+      vmImage: 'macOS-10.14'
     strategy:
       matrix:
         Python37:
@@ -28,9 +28,12 @@ jobs:
           python.version: '2.7'
       maxParallel: 2
     steps:
-      - task: Xcode@5
-        inputs:
-          xcodeVersion: '10' # Options: default, 10, 9, 8, specifyPath
+      - bash: |
+        set -e
+        ls -la /Applications/Xcode*
+        sudo xcode-select --switch /Applications/Xcode_10.2.app/Contents/Developer
+        which g++
+        c++ --version
       - task: UsePythonVersion@0
         inputs:
           versionSpec: '$(python.version)'
