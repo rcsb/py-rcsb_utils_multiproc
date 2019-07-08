@@ -29,11 +29,11 @@ jobs:
       maxParallel: 2
     steps:
       - bash: |
-        set -e
-        ls -la /Applications/Xcode*
-        sudo xcode-select --switch /Applications/Xcode_10.2.app/Contents/Developer
-        which g++
-        c++ --version
+          set -e
+          ls -la /Applications/Xcode*
+          sudo xcode-select --switch /Applications/Xcode_10.2.app/Contents/Developer
+          which g++
+          c++ --version
       - task: UsePythonVersion@0
         inputs:
           versionSpec: '$(python.version)'
