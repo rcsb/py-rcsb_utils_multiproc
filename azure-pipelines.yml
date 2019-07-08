@@ -164,7 +164,7 @@ jobs:
       # Try upload
       #- bash: cat $(PYPIRC_PATH)
       #  displayName: "What is going on here"
-      - script: 'twine upload --verbose --skip-existing -r pypi --config-file $(PYPIRC_PATH) $(Pipeline.Workspace)/SW_$(Agent.OS)_$(python.version)'
+      - script: 'twine upload --verbose --skip-existing -r pypi --config-file $(PYPIRC_PATH) $(Pipeline.Workspace)/SW_$(Agent.OS)_$(python.version)/*'
         displayName: "Upload sdist and wheel to PyPi"
   #
   #
@@ -206,6 +206,6 @@ jobs:
       # Try upload
       #- bash: cat $(PYPIRC_PATH)
       #  displayName: "What is going on here"
-      - script: 'twine upload --verbose --skip-existing -r pypi --config-file $(PYPIRC_PATH) $(Pipeline.Workspace)/SW_$(Agent.OS)_$(python.version)'
+      - script: 'twine upload --verbose --skip-existing -r pypi --config-file $(PYPIRC_PATH) $(Pipeline.Workspace)/SW_$(Agent.OS)_$(python.version)/*'
         displayName: "Upload sdist and wheel to PyPi"
       #
