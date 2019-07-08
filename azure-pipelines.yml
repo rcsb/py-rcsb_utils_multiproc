@@ -1,6 +1,6 @@
 # File: azure-pipelines.yml
-# Date: 8-Jul-2019 jdw
-#       CI/CD example
+# Date: 4-Jul-2019 jdw Created pipeline
+#       8-Jul-2019 jdw add macos test/publish
 
 trigger:
 - master
@@ -68,9 +68,6 @@ jobs:
       - script: python setup.py  bdist_wheel --dist-dir "$(System.DefaultWorkingDirectory)/dist"
         displayName: "Build wheel"
       #
-      #- script: pip wheel --wheel-dir "$(System.DefaultWorkingDirectory)/dist"  .
-      #  displayName: 'Build wheel'
-      #
       # Check the install artifacts
       - script: ls -lR "$(System.DefaultWorkingDirectory)/dist"
         displayName: "Listing of installed software"
@@ -95,10 +92,11 @@ jobs:
           addToPath: true
       - checkout: self
         submodules: true
-      - script: which apt
-        displayName: 'Installing OS dependencies'
-      - script: apt-cache policy | grep http | awk '{print $2 $3}' | sort -u
-        displayName: 'Checking for repos'
+      #- script: which apt
+      #  displayName: 'Installing OS dependencies'
+      #- script: apt-cache policy | grep http | awk '{print $2 $3}' | sort -u
+      #  displayName: 'Checking for repos'
+      #
       - script: sudo apt-get install flex
         displayName: 'Install flex'
       - script: sudo apt-get install bison
@@ -113,16 +111,13 @@ jobs:
       - script: tox -v
         displayName: 'Run Tox'
       #
-      #  Build artifacts
-      - script: pip install --upgrade pip twine setuptools wheel
-        displayName: "Acquire build tools"
+      #  Create build artifacts
+      - script: pip install --upgrade setuptools wheel
+        displayName: "Acquire packaging tools"
       - script: python setup.py  sdist --dist-dir "$(System.DefaultWorkingDirectory)/dist"
         displayName: "Build source dist"
       - script: python setup.py  bdist_wheel --dist-dir "$(System.DefaultWorkingDirectory)/dist"
         displayName: "Build wheel"
-      #
-      #- script: pip wheel --wheel-dir "$(System.DefaultWorkingDirectory)/dist"  .
-      #  displayName: 'Build wheel'
       #
       # Check the install artifacts
       - script: ls -lR "$(System.DefaultWorkingDirectory)/dist"
@@ -160,6 +155,9 @@ jobs:
       - script: ls -lR $(Pipeline.Workspace)/SW_$(Agent.OS)_$(python.version)
         displayName: "Listing of downloaded artifacts"
       #
+      - script: python -m pip install --upgrade pip twine setuptools wheel
+        displayName: 'Install packaging tools'
+      #
       - task: TwineAuthenticate@0
         inputs:
           externalFeeds: 'pypi'
@@ -168,41 +166,7 @@ jobs:
       #  displayName: "What is going on here"
       - script: 'twine upload --verbose --skip-existing -r pypi --config-file $(PYPIRC_PATH) $(Pipeline.Workspace)/SW_$(Agent.OS)_$(python.version)'
         displayName: "Upload sdist and wheel to PyPi"
-      #
-      - script: sudo apt-get install flex
-        displayName: 'Install flex'
-      - script: sudo apt-get install bison
-        displayName: 'Install bison'
-
-      - script: python -m pip install --upgrade pip twine setuptools wheel
-        displayName: 'Install tools'
-
-      - script: pip install -r requirements.txt
-        displayName: 'Install dependencies'
-      #
-      - script: python setup.py  sdist --dist-dir "$(System.DefaultWorkingDirectory)/dist"
-        displayName: "Build source dist"
-      - script: python setup.py  bdist_wheel --dist-dir "$(System.DefaultWorkingDirectory)/dist"
-        displayName: "Build wheel"
-      #
-      #- script: pip wheel --wheel-dir "$(System.DefaultWorkingDirectory)/dist"  .
-      #  displayName: 'Build wheel'
-      # Check the install artifacts
-      #
-      - script: ls -lR $(System.DefaultWorkingDirectory)/
-        displayName: "Listing of installed software"
-      #
-      - task: TwineAuthenticate@0
-        inputs:
-          externalFeeds: 'pypi'
-      # Check the install artifacts
-      - script: ls -lR $(System.DefaultWorkingDirectory)/dist
-        displayName: "Listing of installed software"
-        # Try upload
-      #- bash: cat $(PYPIRC_PATH)
-      #  displayName: "What is going on here"
-      - script: 'twine upload --verbose --skip-existing -r pypi --config-file $(PYPIRC_PATH) $(System.DefaultWorkingDirectory)/dist/*'
-        displayName: "Upload sdist and wheel to PyPi"
+  #
   #
   - job: 'publish_macos'
     pool:
@@ -232,6 +196,9 @@ jobs:
       #
       - script: ls -lR $(Pipeline.Workspace)/SW_$(Agent.OS)_$(python.version)
         displayName: "Listing of downloaded artifacts"
+      #
+      - script: python -m pip install --upgrade pip twine setuptools wheel
+        displayName: 'Install packaging tools'
       #
       - task: TwineAuthenticate@0
         inputs:
