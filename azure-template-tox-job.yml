@@ -7,7 +7,7 @@ parameters:
   os: "linux"
 
 jobs:
-- job: ${{ format('test_{0}_{1}', parameters.os, parameters.tox) }}
+- job: ${{ format('test_{0}_{1}', parameters.tox, parameters.os) }}
   pool:
     ${{ if eq(parameters.os, 'macos') }}:
       vmImage: 'macOS-10.14'
@@ -64,7 +64,7 @@ jobs:
       displayName: 'Install dependencies'
     #
     - ${{ if startsWith(parameters.tox, 'py') }}:
-      - script: ${{ format('python -m tox -e {0}-{1}-{2}', parameters.tox, parameters.python, parameters.os) }}
+      - script: ${{ format('python -m tox -e {0}', parameters.tox) }}
         displayName: 'Run Tox'
     - ${{ if not(startsWith(parameters.tox, 'py')) }}:
       - script: ${{ format('python -m tox -e {0}-{1}', parameters.tox, parameters.os) }}
