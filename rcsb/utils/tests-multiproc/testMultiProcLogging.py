@@ -271,6 +271,7 @@ class MultiProcLoggingTests(unittest.TestCase):
             logger.exception("context logging record %s", str(e))
             self.fail()
 
+    @unittest.skipIf(sys.version_info[0] < 3, "not supported in this python version")
     def testLogFileHandlerMultiProc(self):
         """Test case -  context manager - to string stream and custom file stream
         """
