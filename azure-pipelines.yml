@@ -23,7 +23,7 @@ jobs:
   - template: azure-template-tox-job.yml
     parameters: {tox: 'flake8', python: '3.7', os: 'linux'}
   - template: azure-template-tox-job.yml
-    parameters: {tox: 'pylint', python: '3.7', os: 'linux'}
+    parameters: {tox: 'lint', python: '3.7', os: 'linux'}
   - template: azure-template-tox-job.yml
     parameters: {tox: 'coverage', python: '3.7', os: 'linux'}
     #
