@@ -264,7 +264,7 @@ class MultiProcLoggingTests(unittest.TestCase):
             logger.debug(">> dataList %d:  %r", len(logLines), logLines)
             # self.assertGreaterEqual(len(logLines), myLen)
             # Temporary tweak
-            self.assertGreaterEqual(len(logLines), int(myLen / 2)
+            self.assertGreaterEqual(len(logLines), int(myLen / 2))
             # for line in logLines:
             #    self.assertIn("context logging record", line)
         except Exception as e:
