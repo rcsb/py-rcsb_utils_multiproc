@@ -63,8 +63,12 @@ jobs:
     - script: pip install -r requirements.txt
       displayName: 'Install dependencies'
     #
-    - script: ${{ format('python -m tox -e {0}', parameters.tox) }}
-      displayName: 'Run Tox'
+    - ${{ if startsWith(parameters.tox, 'py') }}:
+      - script: ${{ format('python -m tox -e {0}-{1}-{2}', parameters.tox, parameters.python, parameters.os) }}
+        displayName: 'Run Tox'
+    - ${{ if not(startsWith(parameters.tox, 'py')) }}:
+      - script: ${{ format('python -m tox -e {0}-{1}', parameters.tox, parameters.os) }}
+        displayName: 'Run Tox'
     #
     #  Build artifacts if this is a python target
     #
