@@ -1,6 +1,9 @@
 # File: azure-pipelines.yml
 # Date: 4-Jul-2019 jdw Created pipeline
 #       8-Jul-2019 jdw add macos test/publish
+#       8-Jul-2019 jdw templatize
+#
+name: $(BuildDefinitionName)_$(Date:yyyyMMdd)$(Rev:.rr)
 
 trigger:
 - master
@@ -17,199 +20,20 @@ schedules:
   always: true
 
 jobs:
-  - job: 'test_macos'
-    pool:
-      vmImage: 'macOS-10.14'
-    strategy:
-      matrix:
-        Python37:
-          python.version: '3.7'
-          tox.env: 'py37'
-        Python27:
-          python.version: '2.7'
-          tox.env: 'py27'
-      maxParallel: 2
-    steps:
-      - bash: |
-          set -e
-          ls -la /Applications/Xcode*
-          sudo xcode-select --switch /Applications/Xcode_10.2.app/Contents/Developer
-          which g++
-          c++ --version
-      - task: UsePythonVersion@0
-        inputs:
-          versionSpec: '$(python.version)'
-          addToPath: true
-      - checkout: self
-        submodules: true
-      - script: which brew
-        displayName: 'Check package manager'
-      - script: brew install flex
-        displayName: 'Install flex'
-      - script: which flex
-        displayName: 'Check flex'
-      - script: brew install bison
-        displayName: 'Install bison'
-      - script: which bison
-        displayName: 'Check bison'
-      #
-      - script: python -m pip install --upgrade pip tox
-        displayName: 'Install tools'
-      #
-      - script: pip install -r requirements.txt
-        displayName: 'Install dependencies'
-      #
-      - script: python -m tox -v -e $(tox.env)
-        displayName: 'Run Tox'
-      #
-      #  Build artifacts
-      - script: pip install --upgrade pip twine setuptools wheel
-        displayName: "Acquire build tools"
-      - script: python setup.py  sdist --dist-dir "$(System.DefaultWorkingDirectory)/dist"
-        displayName: "Build source dist"
-      - script: python setup.py  bdist_wheel --dist-dir "$(System.DefaultWorkingDirectory)/dist"
-        displayName: "Build wheel"
-      #
-      # Check the install artifacts
-      - script: ls -lR "$(System.DefaultWorkingDirectory)/dist"
-        displayName: "Listing of installed software"
-      #
-      - publish: $(System.DefaultWorkingDirectory)/dist
-        artifact: "SW_$(Agent.OS)_$(python.version)"
-  #
-  - job: 'test_linux'
-    pool:
-      vmImage: 'ubuntu-latest'
-    strategy:
-      matrix:
-        Python37:
-          python.version: '3.7'
-          tox.env: 'py37,pylint-linux,flake8-linux,coverage-linux'
-        Python27:
-          python.version: '2.7'
-          tox.env: 'py27'
-      maxParallel: 2
-    steps:
-      - task: UsePythonVersion@0
-        inputs:
-          versionSpec: '$(python.version)'
-          addToPath: true
-      - checkout: self
-        submodules: true
-      #- script: which apt
-      #  displayName: 'Installing OS dependencies'
-      #- script: apt-cache policy | grep http | awk '{print $2 $3}' | sort -u
-      #  displayName: 'Checking for repos'
-      #
-      - script: sudo apt-get install flex
-        displayName: 'Install flex'
-      - script: sudo apt-get install bison
-        displayName: 'Install bison'
-      #
-      - script: python -m pip install --upgrade pip tox
-        displayName: 'Install tools'
-      #
-      - script: pip install -r requirements.txt
-        displayName: 'Install dependencies'
-      #
-      - script: python -m tox -v -e $(tox.env)
-        displayName: 'Run Tox'
-      #
-      #  Create build artifacts
-      - script: pip install --upgrade setuptools wheel
-        displayName: "Acquire packaging tools"
-      - script: python setup.py  sdist --dist-dir "$(System.DefaultWorkingDirectory)/dist"
-        displayName: "Build source dist"
-      - script: python setup.py  bdist_wheel --dist-dir "$(System.DefaultWorkingDirectory)/dist"
-        displayName: "Build wheel"
-      #
-      # Check the install artifacts
-      - script: ls -lR "$(System.DefaultWorkingDirectory)/dist"
-        displayName: "Listing of installed software"
-      #
-      - publish: $(System.DefaultWorkingDirectory)/dist
-        artifact: "SW_$(Agent.OS)_$(python.version)"
-  #
-  - job: 'publish_linux'
-    pool:
-      vmImage: 'ubuntu-latest'
-    strategy:
-      matrix:
-        Python37:
-          python.version: '3.7'
-        Python27:
-          python.version: '2.7'
-      maxParallel: 2
-    dependsOn:
-    - test_linux
-    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+  - template: azure-template-tox.job.yml
+    parameters: {tox: 'flake8-linux', python: '3.7', os: 'linux'}
+  - template: azure-template-tox.job.yml
+    parameters: {tox: 'pylint-linux', python: '3.7', os: 'linux'}
+  - template: azure-template-tox.job.yml
+    parameters: {tox: 'coverage-linux', python: '3.7', os: 'linux'}
     #
-    steps:
-      - task: UsePythonVersion@0
-        displayName: 'Using Python $(python.version)'
-        inputs:
-          versionSpec: '$(python.version)'
-          addToPath: true
-      #- checkout: self
-      #  submodules: true
-      #
-      - download: current
-        artifact: "SW_$(Agent.OS)_$(python.version)"
-      #
-      - script: ls -lR $(Pipeline.Workspace)/SW_$(Agent.OS)_$(python.version)
-        displayName: "Listing of downloaded artifacts"
-      #
-      - script: python -m pip install --upgrade pip twine setuptools wheel
-        displayName: 'Install packaging tools'
-      #
-      - task: TwineAuthenticate@0
-        inputs:
-          externalFeeds: 'pypi'
-      # Try upload
-      #- bash: cat $(PYPIRC_PATH)
-      #  displayName: "What is going on here"
-      - script: 'twine upload --verbose --skip-existing -r pypi --config-file $(PYPIRC_PATH) $(Pipeline.Workspace)/SW_$(Agent.OS)_$(python.version)/*'
-        displayName: "Upload sdist and wheel to PyPi"
+  - template: azure-template-tox.job.yml
+    parameters: {tox: 'py37', python: '3.7', os: 'linux'}
+  - template: azure-template-tox.job.yml
+    parameters: {tox: 'py27', python: '3.7', os: 'linux'}
   #
+  - template: azure-template-tox.job.yml
+    parameters: {tox: 'py37', python: '3.7', os: 'macos'}
+  - template: azure-template-tox.job.yml
+    parameters: {tox: 'py27', python: '3.7', os: 'macos'}
   #
-  - job: 'publish_macos'
-    pool:
-      vmImage: 'macos-latest'
-    strategy:
-      matrix:
-        Python37:
-          python.version: '3.7'
-        Python27:
-          python.version: '2.7'
-      maxParallel: 2
-    dependsOn:
-    - test_macos
-    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
-    #
-    steps:
-      - task: UsePythonVersion@0
-        displayName: 'Using Python $(python.version)'
-        inputs:
-          versionSpec: '$(python.version)'
-          addToPath: true
-      #- checkout: self
-      #  submodules: true
-      #
-      - download: current
-        artifact: "SW_$(Agent.OS)_$(python.version)"
-      #
-      - script: ls -lR $(Pipeline.Workspace)/SW_$(Agent.OS)_$(python.version)
-        displayName: "Listing of downloaded artifacts"
-      #
-      - script: python -m pip install --upgrade pip twine setuptools wheel
-        displayName: 'Install packaging tools'
-      #
-      - task: TwineAuthenticate@0
-        inputs:
-          externalFeeds: 'pypi'
-      # Try upload
-      #- bash: cat $(PYPIRC_PATH)
-      #  displayName: "What is going on here"
-      - script: 'twine upload --verbose --skip-existing -r pypi --config-file $(PYPIRC_PATH) $(Pipeline.Workspace)/SW_$(Agent.OS)_$(python.version)/*'
-        displayName: "Upload sdist and wheel to PyPi"
-      #
