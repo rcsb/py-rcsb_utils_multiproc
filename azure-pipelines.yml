@@ -30,10 +30,10 @@ jobs:
   - template: azure-template-tox-job.yml
     parameters: {tox: 'py37', python: '3.7', os: 'linux'}
   - template: azure-template-tox-job.yml
-    parameters: {tox: 'py27', python: '3.7', os: 'linux'}
+    parameters: {tox: 'py27', python: '2.7', os: 'linux'}
   #
   - template: azure-template-tox-job.yml
     parameters: {tox: 'py37', python: '3.7', os: 'macos'}
   - template: azure-template-tox-job.yml
-    parameters: {tox: 'py27', python: '3.7', os: 'macos'}
+    parameters: {tox: 'py27', python: '2.7', os: 'macos'}
   #
