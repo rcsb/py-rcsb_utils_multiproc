@@ -22,8 +22,8 @@ jobs:
       inputs:
         versionSpec: ${{ parameters.python }}
         addToPath: true
-    displayName: setup python
-
+      displayName: setup python
+    #
     #- checkout: self
     #  submodules: true
     #
