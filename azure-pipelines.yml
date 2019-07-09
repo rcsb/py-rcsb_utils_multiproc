@@ -2,6 +2,7 @@
 # Date: 4-Jul-2019 jdw Created pipeline
 #       8-Jul-2019 jdw add macos test/publish
 #       8-Jul-2019 jdw templatize
+#       9-Jul-2019 jdw add publish jobs
 #
 name: $(BuildDefinitionName)_$(Date:yyyyMMdd)$(Rev:.rr)
 
@@ -37,3 +38,14 @@ jobs:
   - template: azure-template-tox-job.yml
     parameters: {tox: 'py27', python: '2.7', os: 'macos'}
   #
+  - template: azure-template-publish-job.yml
+    parameters: {tox: 'py37', python: '3.7', os: 'macos'}
+  - template: azure-template-publish-job.yml
+    parameters: {tox: 'py37', python: '3.7', os: 'linux'}
+  #
+  - template: azure-template-publish-job.yml
+    parameters: {tox: 'py27', python: '2.7', os: 'macos'}
+  - template: azure-template-publish-job.yml
+    parameters: {tox: 'py27', python: '2.7', os: 'linux'}
+  #
+

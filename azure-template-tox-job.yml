@@ -7,7 +7,7 @@ parameters:
   os: "linux"
 
 jobs:
-- job: ${{ format('test_{0}_{1}', parameters.tox, parameters.os) }}
+- job: ${{ format('build_test_{0}_{1}', parameters.tox, parameters.os) }}
   pool:
     ${{ if eq(parameters.os, 'macos') }}:
       vmImage: 'macOS-10.14'
@@ -85,4 +85,4 @@ jobs:
         displayName: "Listing of installed software"
       #
       - publish: $(System.DefaultWorkingDirectory)/dist
-        artifact: ${{ format('sw_{0}_{1}', parameters.os, parameters.python) }}
+        artifact: ${{ format('sw_{0}_{1}', parameters.tox, parameters.os) }}

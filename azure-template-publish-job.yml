@@ -14,7 +14,7 @@ jobs:
     ${{ if eq(parameters.os, 'linux') }}:
       vmImage: 'ubuntu-latest'
   dependsOn:
-  - ${{ format('test_{0}_{1}', parameters.tox, parameters.os) }}
+  - ${{ format('build_test_{0}_{1}', parameters.tox, parameters.os) }}
   condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
   #
   steps:
@@ -28,9 +28,9 @@ jobs:
     #  submodules: true
     #
     - download: current
-      artifact: ${{ format('sw_{0}_{1}', parameters.os, parameters.python) }}
+      artifact: ${{ format('sw_{0}_{1}', parameters.os, parameters.tox) }}
     #
-    - script: ls -lR $(Pipeline.Workspace)/${{ format('sw-{0}-{1}', parameters.os, parameters.python) }}
+    - script: ls -lR $(Pipeline.Workspace)/${{ format('sw_{0}_{1}', parameters.tox, parameters.os) }}
       displayName: "Listing of downloaded artifacts"
     #
     - script: python -m pip install --upgrade pip twine setuptools wheel
@@ -42,6 +42,6 @@ jobs:
     # Try upload
     #- bash: cat $(PYPIRC_PATH)
     #  displayName: "What is going on here"
-    - script: 'twine upload --verbose --skip-existing -r pypi --config-file $(PYPIRC_PATH) $(Pipeline.Workspace)/SW_$(Agent.OS)_$(python.version)/*'
+    - script: 'twine upload --verbose --skip-existing -r pypi --config-file $(PYPIRC_PATH) $(Pipeline.Workspace)/${{ format('sw_{0}_{1}', parameters.tox, parameters.os) }}/*'
       displayName: "Upload sdist and wheel to PyPi"
     #
