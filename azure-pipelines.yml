@@ -20,20 +20,20 @@ schedules:
   always: true
 
 jobs:
-  - template: azure-template-tox.job.yml
+  - template: azure-template-tox-job.yml
     parameters: {tox: 'flake8-linux', python: '3.7', os: 'linux'}
-  - template: azure-template-tox.job.yml
+  - template: azure-template-tox-job.yml
     parameters: {tox: 'pylint-linux', python: '3.7', os: 'linux'}
-  - template: azure-template-tox.job.yml
+  - template: azure-template-tox-job.yml
     parameters: {tox: 'coverage-linux', python: '3.7', os: 'linux'}
     #
-  - template: azure-template-tox.job.yml
+  - template: azure-template-tox-job.yml
     parameters: {tox: 'py37', python: '3.7', os: 'linux'}
-  - template: azure-template-tox.job.yml
+  - template: azure-template-tox-job.yml
     parameters: {tox: 'py27', python: '3.7', os: 'linux'}
   #
-  - template: azure-template-tox.job.yml
+  - template: azure-template-tox-job.yml
     parameters: {tox: 'py37', python: '3.7', os: 'macos'}
-  - template: azure-template-tox.job.yml
+  - template: azure-template-tox-job.yml
     parameters: {tox: 'py27', python: '3.7', os: 'macos'}
   #
