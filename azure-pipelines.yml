@@ -22,11 +22,11 @@ schedules:
 
 jobs:
   - template: azure-template-tox-job.yml
-    parameters: {tox: 'flake8', python: '3.7', os: 'linux'}
+    parameters: {tox: 'format_pep8', python: '3.7', os: 'linux'}
   - template: azure-template-tox-job.yml
-    parameters: {tox: 'lint', python: '3.7', os: 'linux'}
+    parameters: {tox: 'lint_pylint', python: '3.7', os: 'linux'}
   - template: azure-template-tox-job.yml
-    parameters: {tox: 'coverage', python: '3.7', os: 'linux'}
+    parameters: {tox: 'test_coverage', python: '3.7', os: 'linux'}
     #
   - template: azure-template-tox-job.yml
     parameters: {tox: 'py37', python: '3.7', os: 'linux'}
