@@ -111,7 +111,7 @@ class MultiProcLoggingTests(unittest.TestCase):
             #
             with MultiProcLogging(logger=slogger, fmt=self.__mpFormat, level=logging.DEBUG) as wlogger:
                 for ii in range(myLen):
-                    wlogger.error("context logging record %d" % ii)
+                    wlogger.error("context logging record %d", ii)
             #
             stream.seek(0)
             logLines = stream.readlines()
@@ -144,7 +144,7 @@ class MultiProcLoggingTests(unittest.TestCase):
             #
             with MultiProcLogging(logger=flogger, fmt=self.__mpFormat, level=logging.DEBUG) as wlogger:
                 for ii in range(myLen):
-                    wlogger.error("context logging record %d" % ii)
+                    wlogger.error("context logging record %d", ii)
 
             fh.close()
             flogger.removeHandler(fh)
@@ -190,7 +190,7 @@ class MultiProcLoggingTests(unittest.TestCase):
             #
             with MultiProcLogging(logger=mlogger, fmt=self.__mpFormat, level=logging.DEBUG) as wlogger:
                 for ii in range(myLen):
-                    wlogger.error("context logging record %d" % ii)
+                    wlogger.error("context logging record %d", ii)
 
             #
             fh.close()

@@ -4,4 +4,5 @@
 26-Aug-2018  - V0.11 Tweak testing configuration
 23-Mar-2019  - V0.12 Handle nonhashable data lists and add pool mode
 22-Jun-2019  - V0.13 Update development workflows
+17-Oct-2019  - V0.14 Update documentation and fix some linting issues
 
