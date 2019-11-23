@@ -83,7 +83,6 @@ class MultiProcUtilTests(unittest.TestCase):
 
         """
         try:
-
             sCount = 10000
             sLength = 100
             dataList = []

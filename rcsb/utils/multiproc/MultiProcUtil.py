@@ -79,6 +79,7 @@ class MultiProcUtil(object):
         self.__workingDir = "."
         self.__loggingMP = True
         self.__sentinel = None
+        # multiprocessing.set_start_method("spawn")
 
     def setOptions(self, optionsD):
         """ A dictionary of options that is passed as an argument to the worker function
