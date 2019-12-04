@@ -17,7 +17,6 @@ __license__ = "Apache 2.0"
 
 import logging
 
-# import multiprocessing as mp
 import random
 import re
 import string
@@ -28,10 +27,6 @@ from rcsb.utils.multiproc.MultiProcUtil import MultiProcUtil
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s")
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
-# try:
-#    mp.set_start_method("spawn", True) # pylint: disable=no-member
-# except ImportError:
-#    pass
 
 
 class StringTests(object):

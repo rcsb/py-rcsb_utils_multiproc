@@ -6,4 +6,5 @@
 22-Jun-2019  - V0.13 Update development workflows
 17-Oct-2019  - V0.14 Update documentation and fix some linting issues
 23-Nov-2019  - V0.15 Move pipeline to py38 - disable tests in py38 for MultiProcLogging()
+ 4-Dec-2019  - V0.16 Incorporate extended multiprocessing framework to resolve various Py38 issues
 

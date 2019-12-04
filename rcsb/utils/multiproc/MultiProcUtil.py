@@ -22,9 +22,10 @@ __author__ = "John Westbrook"
 __email__ = "jwest@rcsb.rutgers.edu"
 __license__ = "Apache 2.0"
 
+# pylint: skip-file
 
 import logging
-import multiprocessing
+import multiprocess as multiprocessing
 
 logger = logging.getLogger(__name__)
 
@@ -79,7 +80,6 @@ class MultiProcUtil(object):
         self.__workingDir = "."
         self.__loggingMP = True
         self.__sentinel = None
-        # multiprocessing.set_start_method("spawn")
 
     def setOptions(self, optionsD):
         """ A dictionary of options that is passed as an argument to the worker function

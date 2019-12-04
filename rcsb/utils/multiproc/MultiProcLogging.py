@@ -17,18 +17,15 @@ __author__ = "John Westbrook"
 __email__ = "jwest@rcsb.rutgers.edu"
 __license__ = "Apache 2.0"
 
+# pylint: skip-file
+
 import logging
-import multiprocessing
 import threading
 import time
 
-# try:
-#    import Queue as queue
-# except ImportError:
-#    import queue
+import multiprocess as multiprocessing
 
-#
-# import queue for exception definitions
+
 try:
     import queue
 except ImportError:

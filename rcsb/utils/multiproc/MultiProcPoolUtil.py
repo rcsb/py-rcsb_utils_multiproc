@@ -18,10 +18,13 @@ __author__ = "John Westbrook"
 __email__ = "jwest@rcsb.rutgers.edu"
 __license__ = "Apache 2.0"
 
+# pylint: skip-file
+
 import contextlib
 import logging
-import multiprocessing
 from functools import partial
+
+import multiprocess as multiprocessing
 
 logger = logging.getLogger(__name__)
 
