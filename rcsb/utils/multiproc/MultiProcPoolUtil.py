@@ -82,7 +82,7 @@ class MultiProcPoolUtil(object):
         successList = []
         diagList = []
         try:
-            procName = "temp"
+            procName = "worker"
             if numProc < 1:
                 numProc = multiprocessing.cpu_count() * 2
 
@@ -154,7 +154,7 @@ class MultiProcPoolUtil(object):
         diagList = []
         failList = []
         try:
-            procName = "temp"
+            procName = "worker"
             if numProc < 1:
                 numProc = multiprocessing.cpu_count() * 2
 
