@@ -43,7 +43,7 @@ setup(
     ),
     entry_points={"console_scripts": []},
     #
-    install_requires=["future", "multiprocess>=0.70.9"],
+    install_requires=["future", "multiprocess>=0.70.10"],
     packages=find_packages(exclude=["rcsb.utils.tests-multiproc", "rcsb.utils.tests-*", "tests.*"]),
     package_data={
         # If any package contains *.md or *.rst ...  files, include them:

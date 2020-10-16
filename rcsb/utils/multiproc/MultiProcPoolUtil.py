@@ -39,21 +39,19 @@ class MultiProcPoolUtil(object):
         self.__sentinel = None
 
     def setOptions(self, optionsD):
-        """ A dictionary of options that is passed as an argument to the worker function
-        """
+        """A dictionary of options that is passed as an argument to the worker function"""
         self.__optionsD = optionsD
 
     def setWorkingDir(self, workingDir):
-        """ A working directory option that is passed as an argument to the worker function.
-        """
+        """A working directory option that is passed as an argument to the worker function."""
         self.__workingDir = workingDir
 
     def set(self, workerObj=None, workerMethod=None):
-        """  WorkerObject is the instance of object with method named workerMethod()
+        """WorkerObject is the instance of object with method named workerMethod()
 
-             Worker method must support the following prototype -
+        Worker method must support the following prototype -
 
-             sucessList,resultList,diagList=workerFunc(runList=nextList, procName, optionsD, workingDir)
+        sucessList,resultList,diagList=workerFunc(runList=nextList, procName, optionsD, workingDir)
         """
         try:
             self.__workerFunc = getattr(workerObj, workerMethod)
@@ -63,21 +61,23 @@ class MultiProcPoolUtil(object):
             return False
 
     ##
-    def runMulti(self, dataList=None, numProc=0, numResults=1, chunkSize=0):
-        """ Start  a pool of 'numProc' worker methods consuming the input dataList -
+    def runMulti(self, dataList=None, numProc=0, numResults=1, chunkSize=10):
+        """Start  a pool of 'numProc' worker methods consuming the input dataList -
 
-            Divide the dataList into sublists/chunks of size 'chunkSize'
-            if chunkSize <= 0 use chunkSize = numProc
+        Divide the dataList into sublists/chunks of size 'chunkSize'
+        if chunkSize <= 0 use chunkSize = numProc
 
-            sucessList,resultList,diagList=workerFunc(runList=nextList, procName, optionsD, workingDir)
+        sucessList,resultList,diagList=workerFunc(runList=nextList, procName, optionsD, workingDir)
 
-            Returns,   successFlag true|false
-                       failList (data from the inut list that was not successfully processed)
-                       resultLists[numResults] --  numResults result lists
-                       diagList --  unique list of diagnostics --
+        Returns,   successFlag true|false
+                   failList (data from the inut list that was not successfully processed)
+                   resultLists[numResults] --  numResults result lists
+                   diagList --  unique list of diagnostics --
 
         """
-        #
+        # ad hoc assignment base on limited timing tests
+        poolChunkSize = 5
+        failList = []
         retLists = []
         successList = []
         diagList = []
@@ -103,10 +103,11 @@ class MultiProcPoolUtil(object):
             #
             pFunc = partial(self.__workerFunc, procName=procName, optionsD=self.__optionsD, workingDir=self.__workingDir)
             #
-            # start numProc worker processes
+            # start pool of numProc worker processes
             with contextlib.closing(multiprocessing.Pool(processes=numProc)) as pool:
-                retTupList = pool.map(pFunc, subLists)  # pylint: disable=no-member
-                logger.info("Map completed result length %d %r", len(retTupList), type(retTupList))
+                # retTupList = pool.map(pFunc, subLists)  # pylint: disable=no-member
+                retTupList = pool.imap_unordered(pFunc, subLists, chunksize=poolChunkSize)  # pylint: disable=no-member
+                # logger.info("Map completed result length %d %r", len(retTupList), type(retTupList))
 
             #
             logger.debug("rTup is %r", retTupList)
@@ -135,20 +136,21 @@ class MultiProcPoolUtil(object):
         return False, failList, retLists, diagList
 
     def runMultiAsync(self, dataList=None, numProc=0, numResults=1, chunkSize=1):
-        """ Start  a pool of 'numProc' worker methods consuming the input dataList -
+        """Start  a pool of 'numProc' worker methods consuming the input dataList -
 
-            Divide the dataList into sublists/chunks of size 'chunkSize'
-            if chunkSize <= 0 use chunkSize = numProc
+        Divide the dataList into sublists/chunks of size 'chunkSize'
+        if chunkSize <= 0 use chunkSize = numProc
 
-            sucessList,resultList,diagList=workerFunc(runList=nextList, procName, optionsD, workingDir)
+        sucessList,resultList,diagList=workerFunc(runList=nextList, procName, optionsD, workingDir)
 
-            Returns,   successFlag true|false
-                       failList (data from the inut list that was not successfully processed)
-                       resultLists[numResults] --  numResults result lists
-                       diagList --  unique list of diagnostics --
+        Returns,   successFlag true|false
+                   failList (data from the inut list that was not successfully processed)
+                   resultLists[numResults] --  numResults result lists
+                   diagList --  unique list of diagnostics --
 
         """
         #
+        poolChunkSize = 5
         retLists = []
         successList = []
         diagList = []
@@ -159,14 +161,26 @@ class MultiProcPoolUtil(object):
                 numProc = multiprocessing.cpu_count() * 2
 
             lenData = len(dataList)
+            #
             numProc = min(numProc, lenData)
+            chunkSize = min(lenData, chunkSize)
+            #
+            if chunkSize <= 0:
+                numLists = numProc
+            else:
+                numLists = int(lenData / int(chunkSize))
+            #
+            subLists = [dataList[i::numLists] for i in range(numLists)]
+            #
+            if subLists is not None and subLists:
+                logger.info("Running with numProc %d subtask count %d subtask length ~ %d", numProc, len(subLists), len(subLists[0]))
 
             #
             pFunc = partial(self.__workerFunc, procName=procName, optionsD=self.__optionsD, workingDir=self.__workingDir)
             #
-            # start numProc worker processes
+            # start pool of numProc worker processes
             with contextlib.closing(multiprocessing.Pool(processes=numProc)) as pool:
-                aSyncMapResult = pool.map_async(pFunc, dataList, chunksize=chunkSize)  # pylint: disable=no-member
+                aSyncMapResult = pool.map_async(pFunc, subLists, chunksize=poolChunkSize)  # pylint: disable=no-member
                 retTupList = aSyncMapResult.get()
 
             #
@@ -197,8 +211,7 @@ class MultiProcPoolUtil(object):
         return False, failList, retLists, diagList
 
     def __diffList(self, l1, l2):
-        """ List difference -  elements in l1 not in l2
-        """
+        """List difference -  elements in l1 not in l2"""
         try:
             return list(set(l1) - set(l2))
         except TypeError:
