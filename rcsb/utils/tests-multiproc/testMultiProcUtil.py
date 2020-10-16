@@ -80,7 +80,7 @@ class MultiProcUtilTests(unittest.TestCase):
     def testMultiProcString(self):
         """"""
         try:
-            sCount = 150000
+            sCount = 10000
             dataList = []
             for _ in range(sCount):
                 sLength = random.randint(100, 30000)
