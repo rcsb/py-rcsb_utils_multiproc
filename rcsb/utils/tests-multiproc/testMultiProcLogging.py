@@ -56,9 +56,9 @@ class MultiProcLoggingTests(unittest.TestCase):
 
     def workerOne(self, dataList, procName, optionsD, workingDir):
         """
-            Worker method must support the following prototype -
+        Worker method must support the following prototype -
 
-            sucessList,resultList,diagList=workerFunc(runList=nextList,procName, optionsD, workingDir)
+        sucessList,resultList,diagList=workerFunc(runList=nextList,procName, optionsD, workingDir)
 
         """
         _ = optionsD
@@ -71,9 +71,7 @@ class MultiProcLoggingTests(unittest.TestCase):
         return successList, [], []
 
     def testLogStream(self):
-        """Test case -  context manager - with default root logger
-
-        """
+        """Test case -  context manager - with default root logger"""
         try:
             #
             myLen = self.__logRecordMax
@@ -90,8 +88,7 @@ class MultiProcLoggingTests(unittest.TestCase):
 
     @unittest.skipIf(sys.version_info[0] < 3, "not supported in this python version")
     def testLogStringStream(self):
-        """Test case -   context manager - to custom string stream
-        """
+        """Test case -   context manager - to custom string stream"""
         try:
             myLen = self.__logRecordMax
             dataList = [i for i in range(1, myLen)]
@@ -124,8 +121,7 @@ class MultiProcLoggingTests(unittest.TestCase):
             self.fail()
 
     def testLogFileHandler(self):
-        """Test case -  context manager - to string stream and custom file stream
-        """
+        """Test case -  context manager - to string stream and custom file stream"""
         try:
 
             #
@@ -150,7 +146,7 @@ class MultiProcLoggingTests(unittest.TestCase):
             flogger.removeHandler(fh)
             #
             logLines = []
-            with open(self.__testLogPath, "r") as ifh:
+            with open(self.__testLogPath, "r", encoding="utf-8") as ifh:
                 for line in ifh:
                     logLines.append(line)
             self.assertEqual(len(logLines), myLen)
@@ -162,8 +158,7 @@ class MultiProcLoggingTests(unittest.TestCase):
 
     @unittest.skipIf(sys.version_info[0] < 3, "not supported in this python version")
     def testLogStringPlusFileHandlers(self):
-        """Test case -  context manager - to custom file stream
-        """
+        """Test case -  context manager - to custom file stream"""
         try:
 
             #
@@ -197,7 +192,7 @@ class MultiProcLoggingTests(unittest.TestCase):
             mlogger.removeHandler(fh)
             #
             logLines = []
-            with open(self.__testLogPath, "r") as ifh:
+            with open(self.__testLogPath, "r", encoding="utf-8") as ifh:
                 for line in ifh:
                     logLines.append(line)
             self.assertEqual(len(logLines), myLen)
@@ -220,7 +215,7 @@ class MultiProcLoggingTests(unittest.TestCase):
     def testLogStringStreamMultiProc(self):
         """Test case -   context manager - to custom string stream
 
-           Problems with this test during coverage tests-
+        Problems with this test during coverage tests-
         """
         try:
 
@@ -273,8 +268,7 @@ class MultiProcLoggingTests(unittest.TestCase):
 
     @unittest.skipIf(sys.version_info[0] < 3, "not supported in this python version")
     def testLogFileHandlerMultiProc(self):
-        """Test case -  context manager - to string stream and custom file stream
-        """
+        """Test case -  context manager - to string stream and custom file stream"""
         try:
 
             #
@@ -309,7 +303,7 @@ class MultiProcLoggingTests(unittest.TestCase):
 
             #
             logLines = []
-            with open(self.__testLogPath, "r") as ifh:
+            with open(self.__testLogPath, "r", encoding="utf-8") as ifh:
                 for line in ifh:
                     logLines.append(line)
             self.assertGreaterEqual(len(logLines), myLen)

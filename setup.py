@@ -14,8 +14,16 @@ from setuptools import setup
 packages = []
 thisPackage = "rcsb.utils.multiproc"
 
-with open("rcsb/utils/multiproc/__init__.py", "r") as fd:
+with open("rcsb/utils/multiproc/__init__.py", "r", encoding="utf-8") as fd:
     version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', fd.read(), re.MULTILINE).group(1)
+
+# Load packages from requirements*.txt
+with open("requirements.txt", "r", encoding="utf-8") as ifh:
+    packagesRequired = [ln.strip() for ln in ifh.readlines()]
+
+with open("README.md", "r", encoding="utf-8") as ifh:
+    longDescription = ifh.read()
+
 
 if not version:
     raise RuntimeError("Cannot find version information")
@@ -24,7 +32,8 @@ setup(
     name=thisPackage,
     version=version,
     description="RCSB Python Multiprocessing Utility Classes",
-    long_description="See:  README.md",
+    long_description_content_type="text/markdown",
+    long_description=longDescription,
     author="John Westbrook",
     author_email="john.westbrook@rcsb.org",
     url="https://github.com/rcsb/py-rcsb_utils_multiproc",
@@ -39,11 +48,11 @@ setup(
         "Programming Language :: Python",
         #    "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.9",
     ),
     entry_points={"console_scripts": []},
     #
-    install_requires=["future", "multiprocess>=0.70.10"],
+    install_requires=packagesRequired,
     packages=find_packages(exclude=["rcsb.utils.tests-multiproc", "rcsb.utils.tests-*", "tests.*"]),
     package_data={
         # If any package contains *.md or *.rst ...  files, include them:
