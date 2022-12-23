@@ -9,3 +9,4 @@
  4-Dec-2019  - V0.16 Incorporate extended multiprocessing framework to resolve various Py38 issues
  5-Mar-2020  - V0.17 Cosmetic change in pool process naming
 16-Oct-2020  - V0.18 Adjustments to pool api
+23-Dec-2022  - V0.19 Configuration changes to support tox 4
