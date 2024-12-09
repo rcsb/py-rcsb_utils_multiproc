@@ -11,3 +11,4 @@
 16-Oct-2020  - V0.18 Adjustments to pool api
 23-Dec-2022  - V0.19 Configuration changes to support tox 4
  1-Jul-2024  - V0.20 Update package version with latest setuptools
+ 9-Dec-2024  - V0.21 Update Azure pipelines to use latest macOS, Ubuntu, and python 3.10
