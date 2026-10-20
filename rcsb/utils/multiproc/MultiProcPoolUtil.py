@@ -6,6 +6,7 @@
 #
 # Updates:
 #  23-Mar-2019 jdw handle nonhashable data lists
+#  20-Oct-2026 dwp use the 'fork' start method on Linux (the default before Python 3.14)
 ##
 """
 Multiprocessing execution wrapper using process pools supporting tasks with list of inputs and a variable
@@ -22,11 +23,17 @@ __license__ = "Apache 2.0"
 
 import contextlib
 import logging
+import sys
 from functools import partial
 
 import multiprocess as multiprocessing
 
 logger = logging.getLogger(__name__)
+
+# Python 3.14 changes the default start method on Linux from 'fork' to 'forkserver', which would pickle the
+# worker object (and everything it holds, e.g. loader resource caches) for every worker process. Keep 'fork' on
+# Linux, where it was the default before 3.14, and leave the platform default elsewhere.
+_mpContext = multiprocessing.get_context("fork") if sys.platform.startswith("linux") else multiprocessing.get_context()
 
 
 class MultiProcPoolUtil(object):
@@ -104,7 +111,7 @@ class MultiProcPoolUtil(object):
             pFunc = partial(self.__workerFunc, procName=procName, optionsD=self.__optionsD, workingDir=self.__workingDir)
             #
             # start pool of numProc worker processes
-            with contextlib.closing(multiprocessing.Pool(processes=numProc)) as pool:
+            with contextlib.closing(_mpContext.Pool(processes=numProc)) as pool:
                 # retTupList = pool.map(pFunc, subLists)  # pylint: disable=no-member
                 retTupList = pool.imap_unordered(pFunc, subLists, chunksize=poolChunkSize)  # pylint: disable=no-member
                 # logger.info("Map completed result length %d %r", len(retTupList), type(retTupList))
@@ -179,7 +186,7 @@ class MultiProcPoolUtil(object):
             pFunc = partial(self.__workerFunc, procName=procName, optionsD=self.__optionsD, workingDir=self.__workingDir)
             #
             # start pool of numProc worker processes
-            with contextlib.closing(multiprocessing.Pool(processes=numProc)) as pool:
+            with contextlib.closing(_mpContext.Pool(processes=numProc)) as pool:
                 aSyncMapResult = pool.map_async(pFunc, subLists, chunksize=poolChunkSize)  # pylint: disable=no-member
                 retTupList = aSyncMapResult.get()
 

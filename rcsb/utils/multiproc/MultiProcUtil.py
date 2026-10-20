@@ -11,6 +11,7 @@
 #  9-Oct-2017 jdw add chunkSize option such that the input dataList to provide more granular distribution
 #                 data among the works.  Defaults to numProc if unspecified.
 # 27-Mar-2018 jdw add check for empty input
+# 20-Oct-2026 dwp use the 'fork' start method on Linux (the default before Python 3.14)
 ##
 """
 Multiprocessing execution wrapper supporting tasks with list of inputs and a variable number of output lists.
@@ -25,12 +26,19 @@ __license__ = "Apache 2.0"
 # pylint: skip-file
 
 import logging
+import sys
+
 import multiprocess as multiprocessing
 
 logger = logging.getLogger(__name__)
 
+# Python 3.14 changes the default start method on Linux from 'fork' to 'forkserver', which would pickle the
+# worker object (and everything it holds, e.g. loader resource caches) for every worker process. Keep 'fork' on
+# Linux, where it was the default before 3.14, and leave the platform default elsewhere.
+_mpContext = multiprocessing.get_context("fork") if sys.platform.startswith("linux") else multiprocessing.get_context()
 
-class MultiProcWorker(multiprocessing.Process):
+
+class MultiProcWorker(_mpContext.Process):
 
     """  Multi-processing working method wrapper --
 
@@ -40,7 +48,7 @@ class MultiProcWorker(multiprocessing.Process):
     """
 
     def __init__(self, taskQueue, successQueue, resultQueueList, diagQueue, workerFunc, verbose=False, optionsD=None, workingDir="."):
-        multiprocessing.Process.__init__(self)
+        _mpContext.Process.__init__(self)
         self.__taskQueue = taskQueue
         self.__successQueue = successQueue
         self.__resultQueueList = resultQueueList
@@ -136,14 +144,14 @@ class MultiProcUtil(object):
         if subLists is not None and subLists:
             logger.debug("Running with numProc %d subtask count %d subtask length ~ %d", numProc, len(subLists), len(subLists[0]))
         #
-        taskQueue = multiprocessing.Queue()
-        successQueue = multiprocessing.Queue()
-        diagQueue = multiprocessing.Queue()
+        taskQueue = _mpContext.Queue()
+        successQueue = _mpContext.Queue()
+        diagQueue = _mpContext.Queue()
 
         rqList = []
         retLists = []
         for ii in range(numResults):
-            rqList.append(multiprocessing.Queue())
+            rqList.append(_mpContext.Queue())
             retLists.append([])
 
         #
